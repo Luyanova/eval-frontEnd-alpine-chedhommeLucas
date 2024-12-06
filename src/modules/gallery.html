@@ -1,0 +1,289 @@
+<!-- ----------------------------------------------------------------------- -->
+<!--                        Génération de la galerie                         -->
+<!-- ----------------------------------------------------------------------- -->
+
+<div x-data="Gallery()" x-init="init()" class="container mx-auto p-4">
+  <!-- Barre de recherche -->
+  <div class="mb-4">
+    <label for="search" class="block text-sm font-medium text-sky-700"
+      >Recherche :</label
+    >
+    <input
+      id="search"
+      x-model="search"
+      placeholder="Rechercher une recette..."
+      class="mt-2 block w-full p-2 border border-sky-300 rounded-md shadow-sm"
+    />
+  </div>
+
+  <!-- Menu déroulant pour le filtre PreparationTime -->
+  <div class="mb-4">
+    <label
+      for="preparationTimeFilter"
+      class="block text-sm font-medium text-gray-700"
+    >
+      Filtrer par Temps de Préparation :
+    </label>
+    <select
+      id="preparationTimeFilter"
+      x-model="selectedPreparationTime"
+      class="mt-2 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+    >
+      <option value="">Tous les temps</option>
+      <option value="under30">Moins de 30 minutes</option>
+      <option value="under60">Entre 30 et 60 minutes</option>
+      <option value="under90">Entre 60 et 90 minutes</option>
+      <option value="above90">Plus de 90 minutes</option>
+    </select>
+  </div>
+
+  <!-- Menu déroulant pour le filtre Difficulty -->
+  <div class="mb-4">
+    <label
+      for="difficultyFilter"
+      class="block text-sm font-medium text-sky-700"
+    >
+      Filtrer par difficulté :
+    </label>
+    <select
+      id="difficultyFilter"
+      x-model="selectedDifficulty"
+      class="mt-2 block w-full p-2 border border-sky-300 rounded-md shadow-sm"
+    >
+      <option value="" disabled>Selectionner une difficulé</option>
+      <option value="">Toutes</option>
+      <option value="facile">Facile</option>
+      <option value="moyenne">Moyenne</option>
+      <option value="difficile">Difficile</option>
+      <option value="hardcore">Hardcore</option>
+    </select>
+  </div>
+
+  <!-- Menu déroulant pour le filtre Catégory -->
+  <div class="mb-4">
+    <label for="categoryFilter" class="block text-sm font-medium text-sky-700">
+      Filtrer par Catégorie :
+    </label>
+    <select
+      id="categoryFilter"
+      x-model="selectedCategory"
+      class="mt-2 block w-full p-2 border border-sky-300 rounded-md shadow-sm"
+    >
+      <option value="" disabled>Selectionner une catégorie</option>
+      <option value="">Toutes</option>
+      <option value="dessert">Dessert</option>
+      <option value="entrée">Entrée</option>
+      <option value="accompagnement">Accompagnement</option>
+      <option value="boisson">Boisson</option>
+    </select>
+  </div>
+
+  <!-- Affichage du nombre de recettes filtrées -->
+  <div class="mb-4">
+    <p x-text="filteredRecipes.length + ' recettes trouvées'"></p>
+  </div>
+
+  <!-- Grid des recettes -->
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+  >
+    <template x-for="recipe in filteredRecipes" :key="recipe.id">
+      <div
+        class="group border rounded-lg shadow-lg p-4 bg-white cursor-pointer hover:bg-sky-800 hover:-translate-y-2"
+        @click="openLightbox(recipe.id)"
+        x-data="{ shown: false }"
+        x-intersect:enter="shown = true"
+        x-intersect:leave="shown = false"
+        x-intersect:threshold="0.1"
+      >
+        <div
+          x-show="shown"
+          x-transition:enter="transition-opacity ease-out duration-500"
+          x-transition:enter-start="opacity-0"
+          x-transition:enter-end="opacity-100"
+        >
+          <img
+            :src="recipe.imageUrl"
+            alt=""
+            class="w-full h-48 object-cover rounded-t-md"
+          />
+          <div class="mt-4">
+            <h2
+              class="text-lg font-semibold text-sky-950 group-hover:text-sky-500"
+              x-text="recipe.title"
+            ></h2>
+            <p
+              class="text-sm text-sky-300 group-hover:text-sky-100"
+              x-text="`Catégorie : ${recipe.category}`"
+            ></p>
+            <p
+              class="text-sm text-sky-300 group-hover:text-sky-100"
+              x-text="`Temps de préparation : ${recipe.preparationTime}`"
+            ></p>
+            <p
+              class="text-sm text-sky-300 group-hover:text-sky-100"
+              x-text="`Difficulté : ${recipe.difficulty}`"
+            ></p>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Lightbox -->
+  <div
+    x-show="isLightboxActive()"
+    class="fixed inset-0 bg-black/75 flex flex-col items-center justify-center z-50 transition-opacity duration-300"
+    :class="{'opacity-0': !isLightboxActive(), 'opacity-100': isLightboxActive()}"
+    x-transition:enter="transition-opacity duration-500"
+    x-transition:leave="transition-opacity duration-300"
+  >
+    <div
+      class="bg-white rounded-lg shadow-lg overflow-hidden max-w-3xl w-5/6 md:w-full"
+      x-transition:enter="transition-transform duration-300 ease-out"
+      x-transition:enter-start="scale-75"
+      x-transition:enter-end="scale-100"
+      x-transition:leave="transition-transform duration-300 ease-in"
+      x-transition:leave-start="scale-100"
+      x-transition:leave-end="scale-75"
+    >
+      <img
+        :src="selectedRecipe.imageUrl"
+        alt=""
+        class="w-full h-64 object-cover"
+      />
+
+      <div class="p-6">
+        <div class="flex flex-col md:flex-row md:gap-2 md:justify-between">
+          <h2
+            class="text-2xl font-bold mb-4 text-sky-950"
+            x-text="selectedRecipe.title"
+          ></h2>
+
+          <div class="flex flex-col md:flex-row md:gap-2">
+            <div class="flex">
+              <p
+                class="text-sm text-sky-300 capitalize"
+                x-text="selectedRecipe.preparationTime"
+              ></p>
+              <p class="text-sm text-sky-300 pl-1">min</p>
+            </div>
+            <p class="text-sm text-sky-300 hidden md:flex">-</p>
+            <div class="flex">
+              <p
+                class="text-sm text-sky-300 capitalize"
+                x-text="selectedRecipe.servings"
+              ></p>
+              <p class="text-sm text-sky-300 pl-1">personnes</p>
+            </div>
+            <p class="text-sm text-sky-300 hidden md:flex">-</p>
+            <div class="flex">
+              <p
+                class="text-sm text-sky-300 capitalize"
+                x-text="selectedRecipe.category"
+              ></p>
+              <p class="text-sm text-sky-300 pl-1"></p>
+            </div>
+          </div>
+        </div>
+
+        <ul class="list-disc list-inside space-y-2">
+          <template x-for="ingredient in selectedRecipe.ingredients">
+            <li
+              x-text="`${ingredient.quantity} ${ingredient.unit} - ${ingredient.name}`"
+              class="text-sky-700"
+            ></li>
+          </template>
+        </ul>
+
+        <!-- Slider -->
+        <!-- j'ai remis Slider exprès en data pour qu'on puiise voir les boutons à 50% d'opacité ainsi que le compte d'étapesmême si pas de data dans Slider -->
+        <div
+          x-data="Slider()"
+          
+          x-init="selectedRecipe ? init(selectedRecipe.instructions) : null"
+          class="mt-6"
+        >
+          <div class="text-center">
+            <p class="text-lg font-semibold" x-text="currentStep()"></p>
+          </div>
+          <div class="flex justify-between items-center mt-4">
+            <button
+              @click="prevStep"
+              :class="{ 'opacity-50': !hasPrevStep() }"
+              class="px-4 py-2 bg-sky-800 text-white rounded hover:bg-sky-600 disabled:opacity-50"
+              :disabled="!hasPrevStep()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="19"
+                height="28"
+                viewBox="0 0 19 28"
+                fill="none"
+              >
+                <path
+                  d="M17 26L2.06667 14.8C1.53334 14.4 1.53333 13.6 2.06667 13.2L17 2"
+                  stroke="#F2F6F9"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+            <button
+              @click="nextStep"
+              :class="{ 'opacity-50': !hasNextStep() }"
+              class="px-4 py-2 bg-sky-800 text-white rounded hover:bg-sky-600 disabled:opacity-50"
+              :disabled="!hasNextStep()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="19"
+                height="28"
+                viewBox="0 0 19 28"
+                fill="none"
+              >
+                <path
+                  d="M2 26L16.9333 14.8C17.4667 14.4 17.4667 13.6 16.9333 13.2L2 2"
+                  stroke="#F2F6F9"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="mt-2 text-sm text-sky-300 text-center">
+            <span
+              x-text="`Étape ${currentStepIndex + 1} sur ${steps.length}`"
+            ></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 flex justify-end">
+        <button
+          @click="closeLightbox()"
+          class="px-4 py-2 bg-sky-800 text-white rounded hover:bg-sky-600"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+
+    <div class="p-4 gap-8 flex">
+      <button
+        @click="previousRecipe()"
+        :class="{ 'opacity-50' : !hasPrevRecipe() }"
+        class="px-4 py-2 bg-sky-800 text-white rounded hover:bg-sky-600"
+      >
+        Précédent
+      </button>
+      <button
+        @click="nextRecipe()"
+        :class="{ 'opacity-50' : !hasNextRecipe() }"
+        class="px-4 py-2 bg-sky-800 text-white rounded hover:bg-sky-600"
+      >
+        Suivant
+      </button>
+    </div>
+  </div>
+</div>

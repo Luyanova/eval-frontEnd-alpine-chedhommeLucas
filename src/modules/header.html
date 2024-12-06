@@ -1,0 +1,117 @@
+<!-- ----------------------------------------------------------------------- -->
+<!--                Ce module permet la génération du header                 -->
+<!-- ----------------------------------------------------------------------- -->
+
+<header class="fixed top-0 left-0 w-full" x-data="{ menuOpen: false }">
+  <!-- Fond semi-transparent -->
+  <div
+    class="fixed inset-0 bg-black/50 transition-opacity duration-300 z-30"
+    x-show="menuOpen"
+    x-transition:enter="ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="ease-in duration-300"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    @click="menuOpen = false"
+  ></div>
+
+  <!-- Contenu principal du header -->
+  <div class="relative z-40 bg-white shadow-lg w-full md:w-auto">
+    <!-- Logo et titre -->
+    <div class="flex justify-between items-center px-5 py-4">
+      <div class="flex items-center space-x-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="52"
+          height="52"
+          viewBox="0 0 52 52"
+          fill="none"
+        >
+          <path
+            d="M18.9055 40.3462C18.9055 40.3462 21.0655 31.3673 26.1055 25.9462M36.1502 14.5252L37.0487 23.8594C37.6319 29.9146 33.0918 35.3062 27.0364 35.8892C21.0949 36.4613 15.7125 32.1183 15.1404 26.1768C14.5683 20.2353 18.9211 14.9549 24.8627 14.3828L34.8148 13.4245C35.4875 13.3598 36.0854 13.8525 36.1502 14.5252ZM26.1055 49.9462C39.3602 49.9462 50.1055 39.2009 50.1055 25.9462C50.1055 12.6913 39.3602 1.94617 26.1055 1.94617C12.8506 1.94617 2.10547 12.6913 2.10547 25.9462C2.10547 39.2009 12.8506 49.9462 26.1055 49.9462Z"
+            stroke="#082F49"
+            stroke-width="3.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <h1 class="text-lg md:text-xl font-bold text-sky-950">Végécette</h1>
+        <div x-data="recipeCounter()">
+          <h1 class="text-sky-300 xl:text-xl">
+            (<span x-text="recipes.length"></span> recettes)
+          </h1>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex flex-col">
+        <ul class="flex p-6 text-lg font-medium gap-4">
+          <li>
+            <a class="text-sky-700 hover:text-sky-950" href="#top"
+              >Nos recettes</a
+            >
+          </li>
+          <li>
+            <a class="text-sky-700 hover:text-sky-950" href="#blog">Blog</a>
+          </li>
+          <li>
+            <a class="text-sky-700 hover:text-sky-950" href="#about"
+              >À propos</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Bouton menu -->
+      <button
+        class="flex items-center space-x-2 md:hidden"
+        @click="menuOpen = !menuOpen"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          fill="none"
+        >
+          <path
+            d="M0 2C0 0.895431 0.895431 0 2 0H30C31.1046 0 32 0.895431 32 2C32 3.10457 31.1046 4 30 4H2C0.895431 4 0 3.10457 0 2Z"
+            fill="#082F49"
+          />
+          <path
+            d="M0 16C0 14.8954 0.895431 14 2 14H30C31.1046 14 32 14.8954 32 16C32 17.1046 31.1046 18 30 18H2C0.895431 18 0 17.1046 0 16Z"
+            fill="#082F49"
+          />
+          <path
+            d="M0 30C0 28.8954 0.895431 28 2 28H30C31.1046 28 32 28.8954 32 30C32 31.1046 31.1046 32 30 32H2C0.895431 32 0 31.1046 0 30Z"
+            fill="#082F49"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Menu déroulant -->
+  <nav
+    class="fixed bg-white z-50 w-3/5 h-full transform ease-in-out duration-300 -translate-x-full"
+    :class="menuOpen ? 'translate-x-0' : '-translate-x-full'"
+    x-show="menuOpen"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="-translate-x-full"
+    x-transition:enter-end="translate-x-0"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="translate-x-0"
+    x-transition:leave-end="-translate-x-full"
+    x-cloak
+  >
+    <ul class="flex flex-col p-6 space-y-4 text-lg font-medium">
+      <li>
+        <a class="text-sky-700 hover:text-black" href="#top">Nos recettes</a>
+      </li>
+      <li><a class="text-sky-700 hover:text-black" href="#blog">Blog</a></li>
+      <li>
+        <a class="text-sky-700 hover:text-black" href="#about">À propos</a>
+      </li>
+    </ul>
+  </nav>
+</header>
